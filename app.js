@@ -33,6 +33,7 @@ app.get('/api',function(req,res){
  io.on("connection",(socket)=>{
    console.log("New user connected");
 
+  socket.emit("hello",{type:"hello"});
 
    socket.on("new message",(message,callbak)=>{
 	     console.log("the new message is ",message);
@@ -62,18 +63,18 @@ socket.on("join",(params)=>{
 
               socket.on("message "+params.to[i+1],(message)=>{
                 console.log("message sent to " +message.room);
-                    
+
                     socket.emit("server_ack",{
                     	mid:message.id,
                     	room:message.room
                     });
-                    
-                    
+
+
                     socket.on("onview "+message.room,(isviewing)=>{
                     	console.log("viewing" +isviewing.room);
                     	socket.broadcast.to(isviewing.room).emit("onview "+isviewing.room,{viewing:isviewing.is,room:isviewing.room});
                     });
-                    
+
                     socket.broadcast.to(message.room).emit("newMessage",{type:"textMessage",content:message.content,id:message.id,parentRoom:message.room});
               });
 
