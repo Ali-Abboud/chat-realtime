@@ -43,10 +43,6 @@ app.get('/api',function(req,res){
    });
 
 
-   socket.on("dissconnect",()=>{
-      console.log("User dissconnected");
-
-   });
 
 
 socket.on("join",(params)=>{
@@ -58,7 +54,11 @@ socket.on("join",(params)=>{
                 console.log(message.state);
                 console.log(message.room);
                 socket.broadcast.to(message.room).emit("newMessage",{type:"state",room:message.room,state:message.state});
+            
+
               });
+              
+
               /////////////////////////////////////////////
 
               socket.on("message "+params.to[i+1],(message)=>{
@@ -78,8 +78,23 @@ socket.on("join",(params)=>{
                     socket.broadcast.to(message.room).emit("newMessage",{type:"textMessage",content:message.content,id:message.id,parentRoom:message.room});
               });
 
-              rooms.push(params.to[i+1]);
         }
+        
+        socket.on("disconnect",()=>{
+        	for(var i=0;i<params.to.length;i+=2){
+        		socket.broadcast.to(params.to[i+1]).emit("newMessage",{type:"state",room:params.to[i+1],state:"offline"});
+        		console.log("disconnected "+params.to[i+1]);
+        	}
+
+         });
+
+        socket.on("whoIsOnline",()=>{
+        	console.log("begin asking");
+        	  for(var i=0;i<params.to.length;i+=2){
+        		console.log("asking room "+params.to[i+1]+" if it is online");
+        		  socket.broadcast.to(params.to[i+1]).emit("whoIsOnline",{type:"iniateState"}); 
+        	  }
+        });
 });
 
 
