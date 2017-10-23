@@ -91,8 +91,8 @@ socket.on("join",(params)=>{
 
 });
 
-socket.on("whoIsOnline",()=>{
-  console.log("begin asking");
+socket.on("whoIsOnline",(data)=>{
+  console.log("begin asking "+data);
     // for(var i=0;i<params.to.length;i+=2){
     // console.log("asking room "+params.to[i+1]+" if it is online");
     //   socket.broadcast.to(params.to[i+1]).emit("whoIsOnline",{type:"iniateState"});
