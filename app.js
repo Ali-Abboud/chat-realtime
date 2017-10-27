@@ -1,13 +1,3 @@
-//var http = require('http');
-//
-//var port = (process.env.PORT || process.env.VCAP_APP_PORT || 8888);
-//
-//http.createServer(function (req, res) {
-//	res.writeHead(200, {'Content-Type': 'text/plain'});
-//	res.end('Hello World!\n');
-//}).listen(port);
-//
-//console.log('Server running at http://127.0.0.1:'+port);
 const http = require('http');
 const express=require('express');
 const path=require("path");
@@ -54,10 +44,10 @@ socket.on("join",(params)=>{
                 console.log(message.state);
                 console.log(message.room);
                 socket.broadcast.to(message.room).emit("newMessage",{type:"state",room:message.room,state:message.state});
-
+            
 
               });
-
+              
 
               /////////////////////////////////////////////
 
@@ -70,16 +60,18 @@ socket.on("join",(params)=>{
                     });
 
 
-                    socket.on("onview "+message.room,(isviewing)=>{
-                    	console.log("viewing" +isviewing.room);
-                    	socket.broadcast.to(isviewing.room).emit("onview "+isviewing.room,{viewing:isviewing.is,room:isviewing.room});
-                    });
+
 
                     socket.broadcast.to(message.room).emit("newMessage",{type:"textMessage",content:message.content,id:message.id,parentRoom:message.room});
               });
+              
+              socket.on("onview "+params.to[i+1],(isviewing)=>{
+              	console.log("viewing" +isviewing.room);
+              	socket.broadcast.to(isviewing.room).emit("onview "+isviewing.room,{viewing:isviewing.is,room:isviewing.room});
+              });
 
         }
-
+        
         socket.on("disconnect",()=>{
         	for(var i=0;i<params.to.length;i+=2){
         		socket.broadcast.to(params.to[i+1]).emit("newMessage",{type:"state",room:params.to[i+1],state:"offline"});
@@ -87,17 +79,21 @@ socket.on("join",(params)=>{
         	}
 
          });
+        
+        
+//        
+        socket.on("whoIsOnline",()=>{
+        	console.log("begin asking");
+        	  for(var i=0;i<params.to.length;i+=2){
+        		console.log("asking room "+params.to[i+1]+" if it is online");
+        		  socket.broadcast.to(params.to[i+1]).emit("whoIsOnline",{type:"iniateState"}); 
+        	  }
+        });
 
 
 });
 
-socket.on("whoIsOnline",(data)=>{
-  console.log("begin asking "+data);
-    // for(var i=0;i<params.to.length;i+=2){
-    // console.log("asking room "+params.to[i+1]+" if it is online");
-    //   socket.broadcast.to(params.to[i+1]).emit("whoIsOnline",{type:"iniateState"});
-  // }
-});
+
 
 
 
