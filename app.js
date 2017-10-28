@@ -44,10 +44,16 @@ socket.on("join",(params)=>{
                 console.log(message.state);
                 console.log(message.room);
                 socket.broadcast.to(message.room).emit("newMessage",{type:"state",room:message.room,state:message.state});
-            
+
+                	console.log("begin asking");
+
+                		console.log("asking room "+params.to[i+1]+" if it is online");
+                		  socket.broadcast.to(params.to[i+1]).emit("whoIsOnline",{type:"iniateState"});
+      
+
 
               });
-              
+
 
               /////////////////////////////////////////////
 
@@ -64,14 +70,14 @@ socket.on("join",(params)=>{
 
                     socket.broadcast.to(message.room).emit("newMessage",{type:"textMessage",content:message.content,id:message.id,parentRoom:message.room});
               });
-              
+
               socket.on("onview "+params.to[i+1],(isviewing)=>{
               	console.log("viewing" +isviewing.room);
               	socket.broadcast.to(isviewing.room).emit("onview "+isviewing.room,{viewing:isviewing.is,room:isviewing.room});
               });
 
         }
-        
+
         socket.on("disconnect",()=>{
         	for(var i=0;i<params.to.length;i+=2){
         		socket.broadcast.to(params.to[i+1]).emit("newMessage",{type:"state",room:params.to[i+1],state:"offline"});
@@ -79,16 +85,10 @@ socket.on("join",(params)=>{
         	}
 
          });
-        
-        
-//        
-        socket.on("whoIsOnline",()=>{
-        	console.log("begin asking");
-        	  for(var i=0;i<params.to.length;i+=2){
-        		console.log("asking room "+params.to[i+1]+" if it is online");
-        		  socket.broadcast.to(params.to[i+1]).emit("whoIsOnline",{type:"iniateState"}); 
-        	  }
-        });
+
+
+//
+
 
 
 });
