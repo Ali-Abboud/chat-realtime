@@ -49,7 +49,8 @@ socket.on("join",(params)=>{
 
                 		console.log("asking room "+params.to[i+1]+" if it is online");
                 		  socket.broadcast.to(params.to[i+1]).emit("whoIsOnline",{type:"iniateState"});
-      
+
+
 
 
               });
