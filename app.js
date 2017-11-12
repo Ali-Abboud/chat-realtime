@@ -55,7 +55,6 @@ socket.on("join",(params)=>{
 
               });
 
-
               /////////////////////////////////////////////
 
               socket.on("message "+params.to[i+1],(message)=>{
@@ -78,9 +77,13 @@ socket.on("join",(params)=>{
 
         }
 
-        socket.on("whoIsOnline",(rooms)=>{
-            console.log(rooms);
-        });
+
+          socket.on("whoIsOnline",(rooms)=>{
+          	console.log("begin asking who is online");
+              for(var i=0;i<rooms.length;i++){
+              	socket.broadcast.to(rooms[i].room).emit("whoIsOnline");
+              }
+          });
 
         socket.on("disconnect",()=>{
         	for(var i=0;i<params.to.length;i+=2){
