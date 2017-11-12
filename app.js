@@ -45,10 +45,10 @@ socket.on("join",(params)=>{
                 console.log(message.room);
                 socket.broadcast.to(message.room).emit("newMessage",{type:"state",room:message.room,state:message.state});
 
-                	console.log("begin asking");
+                	console.log("begin asking") ;
 
                 		console.log("asking room "+params.to[i+1]+" if it is online");
-                		  socket.broadcast.to(params.to[i+1]).emit("whoIsOnline",{type:"iniateState"});
+
 
 
 
@@ -65,10 +65,6 @@ socket.on("join",(params)=>{
                     	mid:message.id,
                     	room:message.room
                     });
-
-
-
-
                     socket.broadcast.to(message.room).emit("newMessage",{type:"textMessage",content:message.content,id:message.id,parentRoom:message.room});
               });
 
@@ -77,7 +73,14 @@ socket.on("join",(params)=>{
               	socket.broadcast.to(isviewing.room).emit("onview "+isviewing.room,{viewing:isviewing.is,room:isviewing.room});
               });
 
+
+
+
         }
+
+        socket.on("whoIsOnline",(rooms)=>{
+            console.log(rooms);
+        });
 
         socket.on("disconnect",()=>{
         	for(var i=0;i<params.to.length;i+=2){
