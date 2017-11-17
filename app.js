@@ -28,6 +28,9 @@ mongoose.connect("mongodb://bintouch007:123456@ds129004.mlab.com:29004/bitdb@mon
 
 
 
+
+
+
 //creating the shema for documents
 
 var Schema=mongoose.Schema;
