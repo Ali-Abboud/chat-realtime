@@ -130,7 +130,7 @@ socket.on("join",(params)=>{
                     	mid:message.id,
                     	room:message.room
                     });
-                    	socket.broadcast.to(isviewing.room).emit("onview "+isviewing.room,{viewing:isviewing.is,room:isviewing.room});
+
 
 
 
@@ -167,7 +167,7 @@ socket.on("join",(params)=>{
 
               socket.on("onview "+params.to[i+1],(isviewing)=>{
               	console.log("viewing" +isviewing.room);
-
+socket.broadcast.to(isviewing.room).emit("onview "+isviewing.room,{viewing:isviewing.is,room:isviewing.room});
               });
 
 
