@@ -3,6 +3,78 @@ const express=require('express');
 const path=require("path");
 const socketIo=require("socket.io");
 const publicPath=path.join(__dirname,"./public");
+var bodyParser = require('body-parser');
+var mongoose=require('mongoose');
+var jsonParser=bodyParser.json();
+
+var port=process.env.PORT_HTTP || 2999;
+var MONGO_URL=process.env.MONGO_URL || "127.0.0.1";
+var PORT_MONGO=process.env.MONGO_PORT || 27017 ;
+var USERNAME_MONGO=process.env.MONGODB_USER || "username" ;
+var PASSWORD_MONGO=process.env.MONGODB_PASSWORD || "password" ;
+
+//making the connections\
+/*'mongodb://'+USERNAME_MONGO+':'+PASSWORD_MONGO+'@'+MONGO_URL*/
+//
+mongoose.connect("mongodb://bintouch007:123456@ds129004.mlab.com:29004/bitdb@mongodb/bitdb",function (error) {
+    if(error){console.log("error connecting mongodb!!!.");}
+    else{
+
+        console.log("connected!! ");
+
+    }
+
+});
+
+
+
+//creating the shema for documents
+
+var Schema=mongoose.Schema;
+var clienctSchema=new Schema({
+	phone_number:String,
+	full_name:String,
+	user_name:String,
+	token:String,
+	secondary_account:{},
+	password:String
+});
+var phoneChatSchema=new Schema({
+     rooms:[]
+
+});
+
+// var message={
+//   from:,
+//   to:,
+//   state:,
+//   date:,
+//   content:
+// };
+
+var roomSchema=new Schema({
+  room_name:String,
+//  participants:[],
+  chats:[]
+
+});
+
+var Client=mongoose.model('client',clienctSchema);
+var Room=mongoose.model('room',roomSchema);
+////////////////////////////////////////
+
+
+
+ //using the exported function to create the server
+ var app=express();
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 var app=express();
 var server=http.createServer(app);
@@ -44,15 +116,6 @@ socket.on("join",(params)=>{
                 console.log(message.state);
                 console.log(message.room);
                 socket.broadcast.to(message.room).emit("newMessage",{type:"state",room:message.room,state:message.state});
-
-                	console.log("begin asking") ;
-
-                		console.log("asking room "+params.to[i+1]+" if it is online");
-
-
-
-
-
               });
 
               /////////////////////////////////////////////
@@ -64,12 +127,44 @@ socket.on("join",(params)=>{
                     	mid:message.id,
                     	room:message.room
                     });
+                    	socket.broadcast.to(isviewing.room).emit("onview "+isviewing.room,{viewing:isviewing.is,room:isviewing.room});
+
+
+
+                     var chats=[];
+                    	var isFound=false;//if the message already exist
+                    	console.log(data);
+
+                    Room.find({room_name:message.room},function(err,rooms){
+                  		if( rooms!=null && rooms[0]!=null && rooms[0].chats.length>0)
+                  			for(var i=0;i<rooms[0].chats.length;i++){
+                  				chats.push(rooms[0].chats[i]);
+                  				if(message.from==rooms[0].chats[i].from && message.id==rooms[0].chats[i].id)
+                  					isFound=true;
+                  			}
+
+                  		if(!isFound){
+                        message.state=1;
+                      chats.push(message);
+                      }
+
+
+                  		Room.update({room_name:message.room},{$set:{chats:chats}},function(err,rooms){
+                  			if(err) throw err;
+                  			else
+                  				console.log("message saved!!");
+
+                  		});
+                  	});
+
                     socket.broadcast.to(message.room).emit("newMessage",{type:"textMessage",content:message.content,id:message.id,parentRoom:message.room});
               });
 
+
+
               socket.on("onview "+params.to[i+1],(isviewing)=>{
               	console.log("viewing" +isviewing.room);
-              	socket.broadcast.to(isviewing.room).emit("onview "+isviewing.room,{viewing:isviewing.is,room:isviewing.room});
+
               });
 
 
