@@ -136,7 +136,7 @@ socket.on("join",(params)=>{
 
                      var chats=[];
                     	var isFound=false;//if the message already exist
-                    	console.log(data);
+                    
 
                     Room.find({room_name:message.room},function(err,rooms){
                   		if( rooms!=null && rooms[0]!=null && rooms[0].chats.length>0)
