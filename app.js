@@ -116,8 +116,6 @@ socket.on("join",(params)=>{
               console.log(params.to[i] +" joined room "+params.to[i+1]);
               //handles the states of rooms aka of contacts
               socket.on("state "+params.to[i+1],(message)=>{
-                console.log(message.state);
-                console.log(message.room);
                 socket.broadcast.to(message.room).emit("newMessage",{type:"state",room:message.room,state:message.state});
               });
 
@@ -125,29 +123,31 @@ socket.on("join",(params)=>{
 
               socket.on("message "+params.to[i+1],(message)=>{
                 console.log("message sent to " +message.room);
-
+                socket.broadcast.to(message.room).emit("newMessage",{type:"textMessage",content:message.content,id:message.id,parentRoom:message.room,account:message.account});
                     socket.emit("server_ack",{
                     	mid:message.id,
                     	room:message.room
                     });
 
 
-
+                    console.log(message.account);
 
                      var chats=[];
                     	var isFound=false;//if the message already exist
-                    
+
 
                     Room.find({room_name:message.room},function(err,rooms){
                   		if( rooms!=null && rooms[0]!=null && rooms[0].chats.length>0)
                   			for(var i=0;i<rooms[0].chats.length;i++){
                   				chats.push(rooms[0].chats[i]);
+                  				console.log("pushing "+rooms[0].chats[i].content);
                   				if(message.from==rooms[0].chats[i].from && message.id==rooms[0].chats[i].id)
                   					isFound=true;
                   			}
 
                   		if(!isFound){
                         message.state=1;
+                        console.log("before adding the message "+message);
                       chats.push(message);
                       }
 
@@ -156,18 +156,20 @@ socket.on("join",(params)=>{
                   			if(err) throw err;
                   			else
                   				console.log("message saved!!");
+                  			console.log("after adding the message "+chats[0].id + " for "+rooms);
 
                   		});
                   	});
 
-                    socket.broadcast.to(message.room).emit("newMessage",{type:"textMessage",content:message.content,id:message.id,parentRoom:message.room});
+
               });
 
 
 
               socket.on("onview "+params.to[i+1],(isviewing)=>{
               	console.log("viewing" +isviewing.room);
-socket.broadcast.to(isviewing.room).emit("onview "+isviewing.room,{viewing:isviewing.is,room:isviewing.room});
+              	socket.broadcast.to(isviewing.room).emit("onview "+isviewing.room,{viewing:isviewing.is,room:isviewing.room});
+
               });
 
 
